@@ -1,6 +1,8 @@
 import '@mediapipe/hands';
 import { lerp } from './handBridge';
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const HAND_CONNECTIONS = [
   [0, 1], [1, 2], [2, 3], [3, 4],
   [0, 5], [5, 6], [6, 7], [7, 8],
@@ -125,9 +127,20 @@ const mapHandToTargets = (landmarks, gesture, bridge) => {
 export const startHandTracking = async ({ video, bridge, onOverlay, onStatus, onGesture }) => {
   onStatus?.('INITIALIZING TRACKER');
 
-  const HandsCtor = window.Hands;
+  let HandsCtor = window.Hands;
   if (!HandsCtor) {
-    throw new Error('MediaPipe Hands failed to load in window context.');
+    for (let i = 0; i < 20; i += 1) {
+      await wait(100);
+      HandsCtor = window.Hands;
+      if (HandsCtor) {
+        break;
+      }
+    }
+  }
+
+  if (!HandsCtor) {
+    onStatus?.('TRACKER INIT FAILED');
+    throw new Error('MediaPipe Hands failed to load.');
   }
 
   const hands = new HandsCtor({
@@ -165,7 +178,8 @@ export const startHandTracking = async ({ video, bridge, onOverlay, onStatus, on
 
     previousTs = ts;
 
-    if (!busy) {
+    const canProcessFrame = video?.readyState >= 2 && video?.videoWidth > 0 && video?.videoHeight > 0;
+    if (!busy && canProcessFrame) {
       busy = true;
       try {
         await hands.send({ image: video });

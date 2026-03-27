@@ -1,8 +1,35 @@
 .app-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.mobile-toolbar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 20;
+  display: none;
+  gap: 8px;
+}
+
+.mobile-toggle {
+  flex: 1;
+  min-height: 38px;
+  border-radius: 6px;
+  border: 1px solid #4e4e4e;
+  background: rgba(12, 12, 12, 0.88);
+  color: #f0f0f0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mobile-toggle:active {
+  opacity: 0.8;
 }
 
 .ui-panel {
@@ -19,6 +46,10 @@
   color: #ddd;
   z-index: 10;
   backdrop-filter: blur(4px);
+}
+
+.ui-panel.collapsed {
+  display: none;
 }
 
 .ui-panel h1 {
@@ -89,6 +120,7 @@
 }
 
 .btn {
+  min-height: 38px;
   background: #333;
   border: 1px solid #555;
   color: #ccc;
@@ -128,6 +160,10 @@
   overflow: hidden;
   z-index: 10;
   backdrop-filter: blur(4px);
+}
+
+.camera-shell.collapsed .camera-widget {
+  display: none;
 }
 
 .camera-header {
@@ -197,12 +233,18 @@
 }
 
 @media (max-width: 900px) {
+  .mobile-toolbar {
+    display: flex;
+  }
+
   .ui-panel {
-    top: 12px;
+    top: 56px;
     left: 12px;
     max-width: none;
     width: calc(100vw - 24px);
     padding: 14px;
+    max-height: calc(50dvh - 56px);
+    overflow-y: auto;
   }
 
   .camera-widget {
@@ -211,9 +253,119 @@
     left: 12px;
     bottom: 12px;
     width: auto;
+    max-height: calc(50dvh - 12px);
   }
 
   .controls-section {
     margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ui-panel {
+    top: 52px;
+    left: 8px;
+    width: calc(100vw - 16px);
+    padding: 12px;
+    border-radius: 8px;
+    max-height: calc(50dvh - 52px);
+  }
+
+  .ui-panel h1 {
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+
+  .ui-panel h3 {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .info-section {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .controls-section {
+    font-size: 11px;
+  }
+
+  .controls-section li {
+    margin: 2px 0;
+  }
+
+  .structures-section {
+    font-size: 12px;
+  }
+
+  .button-group {
+    gap: 6px;
+  }
+
+  .btn {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .camera-widget {
+    right: 8px;
+    left: 8px;
+    bottom: 8px;
+    border-radius: 8px;
+    max-height: calc(50dvh - 8px);
+  }
+
+  .camera-header {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+
+  .gesture-chip {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .ui-panel {
+    max-height: calc(48dvh - 52px);
+    padding: 10px;
+  }
+
+  .ui-panel h1 {
+    font-size: 16px;
+  }
+
+  .btn {
+    flex-basis: 100%;
+  }
+
+  .camera-widget {
+    max-height: 52dvh;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .ui-panel {
+    width: min(42vw, 420px);
+    max-height: calc(100vh - 16px);
+    top: 8px;
+    left: 8px;
+  }
+
+  .camera-widget {
+    left: auto;
+    right: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: min(42vw, 420px);
+    max-height: none;
+  }
+
+  .camera-frame {
+    height: calc(100% - 58px);
+    aspect-ratio: auto;
   }
 }

@@ -13,6 +13,8 @@ function App() {
   const [structureIndex, setStructureIndex] = useState(0);
   const [status, setStatus] = useState('Initializing...');
   const [gestureLabel, setGestureLabel] = useState('None');
+  const [showPanel, setShowPanel] = useState(true);
+  const [showCamera, setShowCamera] = useState(true);
 
   useEffect(() => {
     let stopTracking = null;
@@ -91,8 +93,17 @@ function App() {
   return (
     <div className="app-container">
       <Scene3D bridge={bridge} structure={STRUCTURES[structureIndex]} />
+
+      <div className="mobile-toolbar">
+        <button className="mobile-toggle" onClick={() => setShowPanel((prev) => !prev)}>
+          {showPanel ? 'Hide Info' : 'Show Info'}
+        </button>
+        <button className="mobile-toggle" onClick={() => setShowCamera((prev) => !prev)}>
+          {showCamera ? 'Hide Camera' : 'Show Camera'}
+        </button>
+      </div>
       
-      <div className="ui-panel">
+      <div className={`ui-panel ${showPanel ? '' : 'collapsed'}`}>
         <h1>Hand Gesture Control</h1>
         
         <div className="info-section">
@@ -128,12 +139,14 @@ function App() {
         </div>
       </div>
 
-      <CameraHud
-        videoRef={videoRef}
-        svgRef={svgRef}
-        status={status}
-        gestureLabel={gestureLabel}
-      />
+      <div className={`camera-shell ${showCamera ? '' : 'collapsed'}`}>
+        <CameraHud
+          videoRef={videoRef}
+          svgRef={svgRef}
+          status={status}
+          gestureLabel={gestureLabel}
+        />
+      </div>
     </div>
   );
 }
