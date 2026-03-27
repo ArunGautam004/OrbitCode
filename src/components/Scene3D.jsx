@@ -1,20 +1,9 @@
 import { useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import {
-  AdditiveBlending,
-  BufferGeometry,
-  Color,
-  LineBasicMaterial,
-  Line,
-  Points,
-  PointsMaterial,
-  SphereGeometry,
-  Vector3,
-} from 'three';
+import { BufferGeometry, Vector3 } from 'three';
 
 export const STRUCTURES = ['SOLAR SYSTEM'];
 
-// Planet data: [name, size, distance, color, speed]
 const PLANETS = [
   { name: 'Mercury', radius: 0.38, distance: 4, color: '#8c7853', speed: 4.15 },
   { name: 'Venus', radius: 0.95, distance: 6, color: '#ffc649', speed: 1.62 },
@@ -31,25 +20,25 @@ const Sun = () => {
 
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.001;
+      meshRef.current.rotation.y += 0.002;
     }
   });
 
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[2.0, 64, 64]} />
-      <meshBasicMaterial color="#ffd700" emissive="#ffa500" emissiveIntensity={1.2} />
-      <pointLight intensity={2.5} color="#ffff99" distance={150} />
+      <meshStandardMaterial color="#ffd76a" emissive="#ff9f1a" emissiveIntensity={1.5} roughness={0.25} />
+      <pointLight intensity={2.6} color="#ffe29a" distance={180} decay={1.7} />
     </mesh>
   );
 };
 
-const Planet = ({ planet, time }) => {
+const Planet = ({ planet }) => {
   const meshRef = useRef(null);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (meshRef.current) {
-      const angle = time * planet.speed;
+      const angle = state.clock.elapsedTime * 0.22 * planet.speed;
       meshRef.current.position.x = Math.cos(angle) * planet.distance;
       meshRef.current.position.z = Math.sin(angle) * planet.distance;
       meshRef.current.rotation.y += 0.005;
@@ -83,49 +72,63 @@ const OrbitLine = ({ distance }) => {
 
   return (
     <line geometry={geometry}>
-      <lineBasicMaterial color="#555555" linewidth={1} transparent opacity={0.3} />
+      <lineBasicMaterial color="#5f6673" transparent opacity={0.32} />
     </line>
   );
 };
 
-const SolarSystem = ({ uniforms }) => {
-  const timeRef = useRef(0);
+const Starfield = () => {
+  const positions = useMemo(() => {
+    const count = 2000;
+    const values = new Float32Array(count * 3);
 
-  useFrame((state, delta) => {
-    timeRef.current += delta * 0.3;
+    for (let i = 0; i < count; i += 1) {
+      const r = 120 + Math.random() * 130;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      values[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
+      values[i * 3 + 1] = r * Math.cos(phi);
+      values[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+
+    return values;
+  }, []);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
+      </bufferGeometry>
+      <pointsMaterial color="#dce7ff" size={0.9} sizeAttenuation transparent opacity={0.8} />
+    </points>
+  );
+};
+
+const SolarSystem = () => {
+  const groupRef = useRef(null);
+
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.01;
+    }
   });
 
   return (
-    <group>
+    <group ref={groupRef}>
       <Sun />
       {PLANETS.map((planet) => (
         <group key={planet.name}>
           <OrbitLine distance={planet.distance} />
-          <Planet planet={planet} time={timeRef.current} />
+          <Planet planet={planet} />
         </group>
       ))}
     </group>
   );
 };
 
-const useSharedUniforms = () => {
-  return useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uCollapse: { value: 0 },
-      uBurst: { value: 0 },
-      uFreeze: { value: 0 },
-      uGlow: { value: 0 },
-      uCyan: { value: new Color('#1ff8ff') },
-      uMagenta: { value: new Color('#ff37d3') },
-    }),
-    []
-  );
-};
-
-const Rig = ({ bridge, selected }) => {
+const Rig = ({ bridge }) => {
   const groupRef = useRef(null);
-  const uniforms = useSharedUniforms();
 
   useFrame((state, delta) => {
     const group = groupRef.current;
@@ -134,40 +137,33 @@ const Rig = ({ bridge, selected }) => {
     }
 
     const freeze = bridge.effects.freeze;
-    const runDelta = freeze ? 0 : delta;
-
-    uniforms.uTime.value += runDelta;
-    uniforms.uCollapse.value += (bridge.smooth.pinch - uniforms.uCollapse.value) * 0.09;
-    uniforms.uBurst.value += (bridge.effects.burst - uniforms.uBurst.value) * 0.16;
-    uniforms.uFreeze.value += ((freeze ? 1 : 0) - uniforms.uFreeze.value) * 0.1;
-    uniforms.uGlow.value += (bridge.smooth.spread - uniforms.uGlow.value) * 0.1;
 
     if (!freeze) {
       group.rotation.x += (bridge.smooth.rotX - group.rotation.x) * 0.08;
       group.rotation.y += (bridge.smooth.rotY - group.rotation.y) * 0.08;
       group.rotation.z += delta * 0.02;
       group.scale.setScalar(group.scale.x + (bridge.smooth.scale - group.scale.x) * 0.08);
-      bridge.effects.burst *= 0.93;
     }
 
-    const camTarget = 20 + bridge.smooth.zoom * 15;
+    const camTarget = bridge.smooth.zoom;
     state.camera.position.z += (camTarget - state.camera.position.z) * 0.08;
   });
 
   return (
     <group ref={groupRef}>
-      <SolarSystem uniforms={uniforms} />
+      <SolarSystem />
+      <Starfield />
     </group>
   );
 };
 
-export const Scene3D = ({ bridge, structure }) => {
+export const Scene3D = ({ bridge }) => {
   return (
-    <Canvas camera={{ position: [0, 8, 20], fov: 45 }}>
-      <color attach="background" args={['#000011']} />
-      <ambientLight intensity={0.15} />
-      <pointLight position={[0, 0, 0]} intensity={3} color="#ffff99" />
-      <Rig bridge={bridge} selected={structure} />
+    <Canvas camera={{ position: [0, 6, 14], fov: 52 }}>
+      <color attach="background" args={['#03060f']} />
+      <ambientLight intensity={0.28} />
+      <hemisphereLight intensity={0.2} groundColor="#050505" color="#8aa7ff" />
+      <Rig bridge={bridge} />
     </Canvas>
   );
 };
