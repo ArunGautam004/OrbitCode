@@ -1,0 +1,115 @@
+.instructions-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(10, 10, 30, 0.9);
+  color: #e0e0e0;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid #64b5f6;
+  backdrop-filter: blur(10px);
+  z-index: 999;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 8px 32px rgba(100, 181, 246, 0.3);
+}
+
+.instructions-panel h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #64b5f6;
+  font-size: 18px;
+  text-align: center;
+}
+
+.instructions-panel h3 {
+  color: #81d4fa;
+  font-size: 14px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #64b5f6;
+  padding-bottom: 5px;
+}
+
+.instructions-panel ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: none;
+}
+
+.instructions-panel li {
+  margin: 8px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #b3e5fc;
+}
+
+.instructions-panel li strong {
+  color: #fff;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(100, 181, 246, 0.2);
+  color: #64b5f6;
+  border: 1px solid #64b5f6;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(100, 181, 246, 0.4);
+  transform: scale(1.1);
+}
+
+.show-instructions-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(100, 181, 246, 0.3);
+  color: #64b5f6;
+  border: 2px solid #64b5f6;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 998;
+}
+
+.show-instructions-btn:hover {
+  background: rgba(100, 181, 246, 0.5);
+  transform: scale(1.1);
+}
+
+.permissions-note {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255, 152, 0, 0.2);
+  border-left: 3px solid #ffa500;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #ffb74d;
+}
+
+@media (max-width: 768px) {
+  .instructions-panel {
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+}

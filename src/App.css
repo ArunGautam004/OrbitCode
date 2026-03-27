@@ -1,0 +1,115 @@
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.ui-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 20px;
+  max-width: 350px;
+  font-family: system-ui, sans-serif;
+  color: #ddd;
+  z-index: 10;
+}
+
+.ui-panel h1 {
+  font-size: 20px;
+  margin: 0 0 16px 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.ui-panel h3 {
+  font-size: 13px;
+  margin: 12px 0 8px 0;
+  color: #bbb;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-section {
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.info-section p {
+  margin: 4px 0;
+  color: #aaa;
+}
+
+.info-section strong {
+  color: #fff;
+}
+
+.controls-section {
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.controls-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.controls-section li {
+  margin: 4px 0;
+  color: #999;
+  padding-left: 16px;
+  position: relative;
+}
+
+.controls-section li:before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #666;
+}
+
+.structures-section {
+  font-size: 13px;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn {
+  background: #333;
+  border: 1px solid #555;
+  color: #ccc;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn:hover {
+  background: #3a3a3a;
+  border-color: #666;
+  color: #fff;
+}
+
+.btn-active {
+  background: #0066cc;
+  border-color: #0066cc;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-active:hover {
+  background: #0052a3;
+}
