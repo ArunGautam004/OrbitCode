@@ -70,7 +70,7 @@ function App() {
           setStatus('Ready');
         }
       } catch (error) {
-        setStatus('Error');
+        setStatus(`Error: ${error?.message || 'Unknown tracker failure'}`);
         console.error(error);
       }
     };

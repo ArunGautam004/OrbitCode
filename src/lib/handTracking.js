@@ -1,7 +1,97 @@
-import '@mediapipe/hands';
 import { lerp } from './handBridge';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const HANDS_CDN_SRCS = [
+  'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js',
+  'https://unpkg.com/@mediapipe/hands/hands.js',
+];
+
+let handsScriptPromise = null;
+
+const loadHandsFromModule = async () => {
+  try {
+    await import('@mediapipe/hands');
+
+    for (let i = 0; i < 20; i += 1) {
+      if (window.Hands) {
+        return window.Hands;
+      }
+      await wait(50);
+    }
+  } catch (error) {
+    console.warn('Module import for @mediapipe/hands failed, using script fallback.', error);
+  }
+
+  return null;
+};
+
+const loadHandsScript = (src) => {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[data-mediapipe-hands-src="${src}"]`);
+
+    if (existing) {
+      if (window.Hands) {
+        resolve(window.Hands);
+        return;
+      }
+
+      existing.addEventListener('load', () => resolve(window.Hands), { once: true });
+      existing.addEventListener('error', () => reject(new Error(`Failed to load MediaPipe Hands script from ${src}`)), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.dataset.mediapipeHandsSrc = src;
+    script.onload = () => resolve(window.Hands);
+    script.onerror = () => reject(new Error(`Failed to load MediaPipe Hands script from ${src}`));
+    document.head.appendChild(script);
+  });
+};
+
+const ensureHandsCtor = async () => {
+  if (window.Hands) {
+    return window.Hands;
+  }
+
+  const fromModule = await loadHandsFromModule();
+  if (fromModule) {
+    return fromModule;
+  }
+
+  if (!handsScriptPromise) {
+    handsScriptPromise = new Promise((resolve, reject) => {
+      (async () => {
+        let lastError = null;
+
+        for (const src of HANDS_CDN_SRCS) {
+          try {
+            const ctor = await loadHandsScript(src);
+            if (ctor) {
+              resolve(ctor);
+              return;
+            }
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        reject(lastError || new Error('Failed to load MediaPipe Hands script from all sources.'));
+      })();
+    });
+  }
+
+  await handsScriptPromise;
+
+  if (!window.Hands) {
+    throw new Error('MediaPipe Hands script loaded but Hands constructor is unavailable.');
+  }
+
+  return window.Hands;
+};
 
 const HAND_CONNECTIONS = [
   [0, 1], [1, 2], [2, 3], [3, 4],
@@ -128,6 +218,15 @@ export const startHandTracking = async ({ video, bridge, onOverlay, onStatus, on
   onStatus?.('INITIALIZING TRACKER');
 
   let HandsCtor = window.Hands;
+  if (!HandsCtor) {
+    try {
+      HandsCtor = await ensureHandsCtor();
+    } catch (error) {
+      onStatus?.('TRACKER INIT FAILED');
+      throw error;
+    }
+  }
+
   if (!HandsCtor) {
     for (let i = 0; i < 20; i += 1) {
       await wait(100);
